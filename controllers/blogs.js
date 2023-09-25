@@ -1,31 +1,32 @@
 const blogRouter = require('express').Router()
 const Blog = require('../models/blog')
 
-blogRouter.get('/', (request,response) => {
+blogRouter.get('/', (request, response) => {
 	Blog.find({}).then(blogs => {
 		response.json(blogs)
 	})
 })
 
-blogRouter.get('/:id', (request,response,next) => {
+blogRouter.get('/:id', (request, response, next) => {
 	Blog.findById(request.params.id)
 		.then(blog => {
-			if(blog)
+			if (blog) {
 				response.json(blog)
-			else
+			} else {
 				response.status(404).end()
+			}
 		})
 		.catch(error => next(error))
 })
 
-blogRouter.post('/',(request,response,next) => {
+blogRouter.post('/', (request, response, next) => {
 	const body = request.body
-  
+
 	const blog = new Blog({
-		tittle: body.tittle,
+		title: body.title,
 		author: body.author,
 		url: body.url,
-		likes:body.likes
+		likes: body.likes
 	})
 
 	blog.save()
@@ -46,12 +47,12 @@ blogRouter.delete('/:id', (request, response, next) => {
 blogRouter.put('/:id', (request, response, next) => {
 	const body = request.body
 
-	const blog = new Blog({
-		tittle: body.tittle,
+	const blog = {
+		title: body.title,
 		author: body.author,
 		url: body.url,
-		likes:body.likes
-	})
+		likes: body.likes
+	}
 
 	Blog.findByIdAndUpdate(request.params.id, blog, { new: true })
 		.then(updatedBlog => {
@@ -60,4 +61,4 @@ blogRouter.put('/:id', (request, response, next) => {
 		.catch(error => next(error))
 })
 
-module.export(blogRouter)
+module.exports = blogRouter
