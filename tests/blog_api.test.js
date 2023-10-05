@@ -53,5 +53,6 @@ test('a valid blog can be added', async () => {
 },100000)
 
 afterAll(async () => {
+	
 	await mongoose.connection.close()
 })
