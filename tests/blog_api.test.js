@@ -52,7 +52,16 @@ test('a valid blog can be added', async () => {
 
 },100000)
 
-afterAll(async () => {
+test('unique identifier of blog is id', async () => {
 	
+	const blogs = await Blog.find({})
+	for(const blog of blogs){
+		expect(blog.id).toBeDefined()
+	}
+
+},100000)
+
+afterAll(async () => {
+
 	await mongoose.connection.close()
 })

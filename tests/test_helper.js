@@ -2,13 +2,17 @@ const Blog = require('../models/blog')
 
 const initialBlogs = [
 	{
-		content: 'HTML is easy',
-		important: false,
+		title: 'Go To Statement Considered Harmful',
+		author: 'Edsger W. Dijkstra',
+		url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
+		likes: 5,
 	},
 	{
-		content: 'Browser can execute only JavaScript',
-		important: true,
-	},
+		title: 'Second test',
+		author: 'Edsger W. William',
+		url: 'http://www.u.florida.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
+		likes: 10
+	}
 ]
 
 const blogsInDb = async () => {
