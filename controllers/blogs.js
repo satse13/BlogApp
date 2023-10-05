@@ -17,14 +17,14 @@ blogRouter.get('/:id', async (request, response) => {
 blogRouter.post('/', async (request, response) => {
 	const body = request.body
 
-	if(!body.title || ! body.url || !body.url)
+	if(!body.title || ! body.url)
 		return response.status(400).json({error: 'Missings fields in blog'})
-
+	
 	const blog = new Blog({
 		title: body.title,
 		author: body.author,
 		url: body.url,
-		likes: body.likes
+		likes:  body.likes ? body.likes : 0
 	})
 
 	const savedBlog = await blog.save()
@@ -50,7 +50,7 @@ blogRouter.put('/:id', async (request, response ) => {
 	}
 
 	const updatedBlog = await	Blog.findByIdAndUpdate(request.params.id, blog, { new: true })
-	response.json(updatedBlog)
+	response.status(200).json(updatedBlog)
 
 })
 

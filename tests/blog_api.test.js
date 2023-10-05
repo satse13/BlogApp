@@ -60,12 +60,23 @@ test('unique identifier of blog is id', async () => {
 
 },100000)
 
-test('likes not missing from Blog', async () => {
+test('if missing likes, default to 0', async () => {
 	
-	const blogs = await Blog.find({})
-	for(const blog of blogs){
-		expect(blog.likes).toBeDefined()
+	const newBlog = {
+		title:'The best blog ever',
+		author:'Me',
+		url:'http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html'
 	}
+
+	await api
+		.post('/api/blogs')
+		.send(newBlog)
+		.expect(201)
+		.expect('Content-Type',/application\/json/)
+
+	const blog = await Blog.findOne({'title': 'The best blog ever'})
+	expect(blog.likes).toBe(0)
+
 },100000)
 
 test('url or title not missing in post request', async () => {
@@ -81,6 +92,55 @@ test('url or title not missing in post request', async () => {
 		.send(newBlog)
 		.expect(400)
 		.expect('Content-Type',/application\/json/)
+
+},100000)
+
+test('a single blog can be deleted', async () => {
+	const newBlog = {
+		title:'The best blog ever',
+		author:'Me',
+		url:'http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html',
+		likes:12
+	}
+
+	await api
+		.post('/api/blogs')
+		.send(newBlog)
+		.expect(201)
+
+	const allBlogs = await helper.blogsInDb()
+	const blogToDelete = allBlogs.find(blog => blog.title === newBlog.title)
+
+	await api
+		.delete(`/api/blogs/${blogToDelete.id}`)
+		.expect(204)
+
+	const blogsAtEnd = await helper.blogsInDb()
+
+	expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
+
+	const contents = blogsAtEnd.map(r => r.title)
+
+	expect(contents).not.toContain(blogToDelete.title)
+
+},100000)
+
+test('a valid blog can be updated', async () => {
+
+	const updatedBlog = helper.initialBlogs[0]
+
+	const initialLikes = helper.initialBlogs[0].likes
+
+	const newBlog = {...updatedBlog, likes : initialLikes + 10}
+
+	await api
+		.put(`/api/blogs/${updatedBlog._id}`)
+		.send(newBlog)
+		.expect(200)
+
+	const blogsAtEnd = await helper.blogsInDb()
+	const foundBlog = blogsAtEnd.find(blog => blog.likes === initialLikes + 10)
+	expect(foundBlog.likes).toBe(initialLikes + 10)
 
 },100000)
 
