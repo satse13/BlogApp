@@ -17,6 +17,9 @@ blogRouter.get('/:id', async (request, response) => {
 blogRouter.post('/', async (request, response) => {
 	const body = request.body
 
+	if(!body.title || ! body.url || !body.url)
+		return response.status(400).json({error: 'Missings fields in blog'})
+
 	const blog = new Blog({
 		title: body.title,
 		author: body.author,
