@@ -1,14 +1,20 @@
 const userRouter = require('express').Router()
 const User = require('../models/user')
+const Blog = require('../models/blog')
+
 const bcrypt = require('bcrypt')
 
 userRouter.get('/', async(request,response) => {
-	const users = await User.find({})
+	const users = await User.find({}).populate('blogs',{title:1,author:1,url:1,likes:1})
 	response.json(users)
 })
 
 userRouter.post('/', async (request, response) => {
 	const { username, name, password } = request.body
+
+	const {id} = await Blog.findOne({})
+	const blogs = [id]
+
 
 	if(!username || !password)
 		return response.status(400).json({error: 'Missings fields in user'})
@@ -22,7 +28,8 @@ userRouter.post('/', async (request, response) => {
 	const user = new User({
 		username,
 		name,
-		passwordHash
+		passwordHash,
+		blogs
 	})
 
 	const savedUser = await user.save()
