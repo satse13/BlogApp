@@ -18,18 +18,16 @@ blogRouter.get('/:id', async (request, response) => {
 
 const getTokenFrom = request => {
 	const authorization = request.get('authorization')
-	if (authorization && authorization.startsWith('Bearer ')) {
+	if (authorization && authorization.toLowerCase().startsWith('bearer ')) {		
 		return authorization.replace('Bearer ', '')
 	}
 	return null
 }
 
 blogRouter.post('/', async (request, response) => {
-	
 	const {title,url,author,likes} = request.body
-
 	const decodedToken = jwt.verify(getTokenFrom(request), process.env.SECRET)
-	if (!decodedToken.id) {
+	if (!decodedToken || !decodedToken.id) {
 		return response.status(401).json({ error: 'token invalid' })
 	}
 	const user = await User.findById(decodedToken.id)
