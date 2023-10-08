@@ -1,7 +1,6 @@
 const blogRouter = require('express').Router()
 const Blog = require('../models/blog')
-const User = require('../models/user')
-const jwt = require('jsonwebtoken')
+const {userExtractor} = require('../utils/middleware')
 
 blogRouter.get('/', async (request, response) => {
 	const blogs = await Blog.find({}).populate('user',{username:1,name:1})
@@ -16,13 +15,10 @@ blogRouter.get('/:id', async (request, response) => {
 		: response.status(404).end()	
 })
 
-blogRouter.post('/', async (request, response) => {
+blogRouter.post('/', userExtractor,async (request, response) => {
 	const {title,url,author,likes} = request.body
-	const decodedToken = jwt.verify(request.token, process.env.SECRET)
-	if (!decodedToken || !decodedToken.id) {
-		return response.status(401).json({ error: 'token invalid' })
-	}
-	const user = await User.findById(decodedToken.id)
+	
+	const user = request.user
 
 	if(!title || !url)
 		return response.status(400).json({error: 'Missings fields in blog'})
@@ -32,7 +28,7 @@ blogRouter.post('/', async (request, response) => {
 		author: author,
 		url: url,
 		likes: likes? likes : 0,
-		user: decodedToken.id
+		user: user.id
 	})
 
 	const savedBlog = await blog.save()
@@ -43,16 +39,10 @@ blogRouter.post('/', async (request, response) => {
 
 })
 
-blogRouter.delete('/:id', async (request, response) => {
-
-	const decodedToken = jwt.verify(request.token, process.env.SECRET)
-	if (!decodedToken || !decodedToken.id) {
-		return response.status(401).json({ error: 'token invalid' })
-	}
+blogRouter.delete('/:id', userExtractor,async (request, response) => {
 
 	const blogID = request.params.id
-	console.log(decodedToken.id)
-	const user = await User.findById(decodedToken.id)
+	const user = request.user
 	const blog = await Blog.findById(blogID)
 
 	if(user.id != blog.user.toString())
