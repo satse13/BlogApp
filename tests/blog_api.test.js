@@ -18,7 +18,7 @@ beforeEach(async () => {
 		let blogObject = new Blog(blog)
 		await blogObject.save()
 	}
-})
+},1000000)
 
 test('blogs are returned as json', async () => {
 	await api
@@ -144,6 +144,22 @@ test('a valid blog can be updated', async () => {
 
 },100000)
 
+test('posting blog fails without token', async () => {
+
+	const newBlog = {
+		title: 'No token blog',
+		author: 'Edsger W. Dijkstra',
+		url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
+		likes: 5,
+	}
+
+	await api
+		.post('/api/blogs')
+		.send(newBlog)
+		.expect(401)
+		.expect('Content-Type',/application\/json/)
+}, 100000)
+
 afterAll(async () => {
 	await mongoose.connection.close()
-})
+},1000000)
