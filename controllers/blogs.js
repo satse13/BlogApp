@@ -12,7 +12,7 @@ blogRouter.get('/:id', async (request, response) => {
 	const blog = await Blog.findById(request.params.id)
 	blog
 		? response.json(blog)
-		: response.status(404).end()	
+		: response.status(404).end()
 })
 
 blogRouter.post('/', userExtractor,async (request, response) => {
